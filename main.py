@@ -50,10 +50,6 @@ def show_movie_details(movie_data):
     imdb_votes_label.config(text="Votes: " + movie_data.get("imdbVotes"))
     plot_text.delete(1.0, tk.END)
     plot_text.insert(tk.END, "Plot: " + movie_data.get("Plot"))
-
-    # Show the plot text box
-    plot_text.pack()
-
     rotten_tomatoes_rating_label.config(text="Rotten Tomatoes Rating: " + get_rotten_tomatoes_rating(movie_data))
     imdb_id_label.config(text="IMDB ID: " + movie_data.get("imdbID"))
     type_label.config(text="Type: " + movie_data.get("Type"))
@@ -247,7 +243,6 @@ awards_label.pack()
 # Plot Text
 plot_text = tk.Text(root, width=40, height=6)
 plot_text.pack()
-plot_text.pack_forget()  # Hide the plot text box initially
 
 # Poster URL Label
 poster_url_label = tk.Label(root, text="")
