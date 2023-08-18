@@ -4,6 +4,7 @@ import requests
 from PIL import Image, ImageTk
 import csv
 import tkinter.messagebox as messagebox
+from tabulate import tabulate  # Import tabulate
 
 class MovieSearchApp:
     def __init__(self, root):
@@ -45,13 +46,9 @@ class MovieSearchApp:
         self.poster_label = tk.Label(self.result_frame)
         self.poster_label.grid(row=0, column=0, rowspan=16, padx=10, pady=5)
 
-        # Create a Treeview for displaying details
-        self.tree = ttk.Treeview(self.result_frame, columns=("detail", "value"))
-        self.tree.heading("#1", text="Detail")
-        self.tree.heading("#2", text="Value")
-        self.tree.column("#1", width=150)
-        self.tree.column("#2", width=300)
-        self.tree.grid(row=0, column=1, padx=10, pady=5)
+        # Create a Text widget to display movie details
+        self.text_widget = tk.Text(self.result_frame, wrap="none")
+        self.text_widget.grid(row=0, column=1, padx=10, pady=5)
 
         self.initialize_checkboxes_and_button()
 
@@ -67,7 +64,6 @@ class MovieSearchApp:
         self.update_ui(movie_data)
 
     def update_ui(self, movie_data):
-        self.tree.delete(*self.tree.get_children())  # Clear existing table rows
 
         if movie_data.get("Response") == "True":
             poster_url = movie_data.get("Poster")
@@ -79,25 +75,27 @@ class MovieSearchApp:
                 # Set the poster image to the label
                 self.poster_label.configure(image=self.poster_image)
 
+            # Initialize detail_labels and detail_values
             detail_labels = [
-                "Title:", "Genre:", "Runtime:", "Year:", "Director:",
-                "IMDB Rating:", "IMDB Votes:", "Rotten Tomatoes Rating:",
-                "Actors:", "IMDB ID:", "Type:", "Rated:", "Released:",
-                "Writer:", "Country:", "Awards:"
+                "Title", "Genre", "Runtime", "Year", "Director",
+                "IMDB Rating", "IMDB Votes", "Rotten Tomatoes",
+                "Actors", "IMDB ID", "Type", "Rated", "Released",
+                "Writer", "Country", "Awards", "Plot"
             ]
             self.detail_labels = detail_labels
-            detail_values = [
+            self.detail_values = [
                 movie_data.get("Title"), movie_data.get("Genre"), movie_data.get("Runtime"),
                 movie_data.get("Year"), movie_data.get("Director"), movie_data.get("imdbRating"),
                 movie_data.get("imdbVotes"), self.get_rotten_tomatoes_rating(movie_data),
                 movie_data.get("Actors"), movie_data.get("imdbID"), movie_data.get("Type"),
                 movie_data.get("Rated"), movie_data.get("Released"), movie_data.get("Writer"),
-                movie_data.get("Country"), movie_data.get("Awards")
+                movie_data.get("Country"), movie_data.get("Awards"), movie_data.get("Plot")
             ]
-            self.detail_values = detail_values
 
-            for label_text, value_text in zip(detail_labels, detail_values):
-                self.tree.insert("", "end", values=(label_text, value_text))
+            # Update the Text widget with tabulated movie details
+            self.text_widget.delete("1.0", tk.END)
+            table = tabulate(zip(self.detail_labels, self.detail_values), headers=["Name", "Details"], tablefmt="grid")
+            self.text_widget.insert(tk.END, table)
 
             self.initialize_checkboxes_and_button()
 
@@ -113,22 +111,21 @@ class MovieSearchApp:
         self.watched_var = tk.IntVar(value=0)
         self.want_to_watch_var = tk.IntVar(value=0)
 
-        # Add these lines in the initialize_checkboxes_and_button method
+        # Create radio buttons for "Watched" and "I Want to Watch"
         watched_radio = tk.Radiobutton(self.result_frame, text="Watched", variable=self.watched_var, value=1)
-        watched_radio.grid(row=16, column=1, padx=10, pady=5)
+        watched_radio.grid(row=17, column=0, padx=10, pady=5, sticky="w")
 
         want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.watched_var,
                                              value=0)
-        want_to_watch_radio.grid(row=16, column=2, padx=10, pady=5)
+        want_to_watch_radio.grid(row=17, column=1, padx=10, pady=5, sticky="w")
 
-
-
+        # Create "Save" button
         save_button = tk.Button(self.result_frame, text="Save", command=self.save_result)
-        save_button.grid(row=17, column=1, columnspan=2, padx=10, pady=5)
+        save_button.grid(row=18, column=0, columnspan=2, padx=10, pady=10, sticky="we")
 
     def save_result(self):
-        watched = 1 if self.watched_var.get() == "NO" else "YES"
-        want_to_watch = 1 if self.want_to_watch_var.get() == "YES" else "NO"
+        watched = 1 if self.watched_var.get() == 1 else 0
+        want_to_watch = 1 if self.want_to_watch_var.get() == 1 else 0
 
         title = self.detail_values[0]  # Get the title from detail_values
 
