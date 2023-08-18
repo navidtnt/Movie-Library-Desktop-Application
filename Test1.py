@@ -47,6 +47,38 @@ class MovieSearchApp:
         self.notebook.add(database_tab, text="Database")
         self.create_database_ui(database_tab)
 
+        # Create the third tab for Analyzed Data
+        analyzed_data_tab = ttk.Frame(self.notebook)
+        self.notebook.add(analyzed_data_tab, text="Analyzed Data")
+        self.create_analyzed_data_ui(analyzed_data_tab)
+
+    def create_analyzed_data_ui(self, parent):
+        self.analyzed_tree = ttk.Treeview(parent, columns=["Date", "Count"], show="headings")
+        self.analyzed_tree.pack(padx=10, pady=10, fill="both", expand=True)
+
+        self.analyzed_tree.heading("Date", text="Date")
+        self.analyzed_tree.column("Date", width=150)
+
+        self.analyzed_tree.heading("Count", text="Search Count")
+        self.analyzed_tree.column("Count", width=150)
+
+        self.update_analyzed_data_ui()
+
+    def update_analyzed_data_ui(self):
+        self.analyzed_tree.delete(*self.analyzed_tree.get_children())  # Clear existing table rows
+
+        try:
+            with open("analyze.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                next(csv_reader)  # Skip header row
+                for row in csv_reader:
+                    self.analyzed_tree.insert("", "end", values=row)
+        except FileNotFoundError:
+            pass
+
+
+
+
     def load_search_count(self):
         # Load the search count and date from the analyze.csv file
         try:
@@ -122,7 +154,6 @@ class MovieSearchApp:
 
         self.update_database_ui()
 
-
     def save_search_count(self):
         filename = 'analyze.csv'
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -144,12 +175,13 @@ class MovieSearchApp:
 
             with open(filename, 'w', newline='') as csv_file:
                 csv_writer = csv.writer(csv_file)
-                csv_writer.writerows(rows)
+                csv_writer.writerow(['Date', 'Count'])
+                csv_writer.writerows(rows[1:])  # Write all rows except the header
 
         except FileNotFoundError:
             with open(filename, 'w', newline='') as csv_file:
                 csv_writer = csv.writer(csv_file)
-                csv_writer.writerow(['Date', 'Counter'])
+                csv_writer.writerow(['Date', 'Count'])
                 csv_writer.writerow([current_date, '1'])
 
     def search_movie(self):
@@ -164,6 +196,7 @@ class MovieSearchApp:
         self.update_ui(movie_data)
         self.save_search_count()  # Update the search count
         self.update_database_ui()
+        self.update_analyzed_data_ui()  # Update the Analyzed Data tab
 
     def update_ui(self, movie_data):
         # Clear previous data from the table and poster image
