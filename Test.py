@@ -91,7 +91,18 @@ class MovieSearchApp:
                 movie_data.get("Rated"), movie_data.get("Released"), movie_data.get("Writer"),
                 movie_data.get("Country"), movie_data.get("Awards"), movie_data.get("Plot")
             ]
+            # Display movie details in tabulated format
+            movie_details = [
+                [label.strip(":"), value] for label, value in zip(self.detail_labels, self.detail_values)
+            ]
+            table = tabulate(movie_details, headers=["Name", "Details"], tablefmt="grid")
+            self.text_widget.delete("1.0", tk.END)
+            self.text_widget.insert(tk.END, table)
 
+            # Disable editing of the Text widget
+            self.text_widget.config(state="disabled")
+            # Set the background color to light yellow
+            self.text_widget.config(bg="#FFFFE0")
             # Update the Text widget with tabulated movie details
             self.text_widget.delete("1.0", tk.END)
             table = tabulate(zip(self.detail_labels, self.detail_values), headers=["Name", "Details"], tablefmt="grid")
