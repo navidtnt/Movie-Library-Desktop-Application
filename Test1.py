@@ -192,7 +192,7 @@ class MovieSearchApp:
                 [label.strip(":"), value] for label, value in zip(self.detail_labels, self.detail_values)
             ]
 
-            table = tabulate(movie_details, headers=["Name", "Details"], tablefmt="grid")
+            table = tabulate(movie_details, tablefmt="grid")
             self.text_widget.config(state="normal", bg="#FFFFE0")
             self.text_widget.delete("1.0", tk.END)
             self.text_widget.insert(tk.END, table)
