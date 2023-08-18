@@ -5,13 +5,24 @@ from PIL import Image, ImageTk
 import csv
 import tkinter.messagebox as messagebox
 from tabulate import tabulate  # Import tabulate
+import datetime
+
 
 class MovieSearchApp:
     def __init__(self, root):
         self.root = root
         self.api_key = "45edf973"
+        self.search_count = 0
+        self.last_search_time = None
+        self.load_search_count()
         self.id_counter = 0  # Initialize the ID counter
         self.detail_labels = [  # Define detail labels here
+            "Title", "Genre", "Runtime", "Year", "Director",
+            "IMDB Rating", "IMDB Votes", "Rotten Tomatoes",
+            "Actors", "IMDB ID", "Type", "Rated", "Released",
+            "Writer", "Country", "Awards", "Plot"
+        ]
+        self.dblabels = [  # Define detail labels here
             "ID", "Title", "Genre", "Runtime", "Year", "Director",
             "IMDB Rating", "IMDB Votes", "Rotten Tomatoes",
             "Actors", "IMDB ID", "Type", "Rated", "Released",
@@ -36,6 +47,18 @@ class MovieSearchApp:
         self.notebook.add(database_tab, text="Database")
         self.create_database_ui(database_tab)
 
+    def load_search_count(self):
+        # Load the search count and date from the analyze.csv file
+        try:
+            with open("analyze.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                last_row = list(csv_reader)[-1]
+                date_str, count_str = last_row
+                self.last_search_date = datetime.datetime.strptime(date_str, "%Y-%m-%d")
+                self.search_count = int(count_str)
+        except (FileNotFoundError, IndexError, ValueError):
+            self.last_search_date = None
+            self.search_count = 0
 
     def update_database_ui(self):
         self.database_tree.delete(*self.database_tree.get_children())  # Clear existing table rows
@@ -44,7 +67,10 @@ class MovieSearchApp:
             with open("movie_results.csv", "r") as csv_file:
                 csv_reader = csv.reader(csv_file)
                 header = next(csv_reader)
+                i = 1
                 for row in csv_reader:
+                    row.insert(0, str(i))
+                    i += 1
                     self.database_tree.insert("", "end", values=row)
         except FileNotFoundError:
             pass
@@ -87,23 +113,44 @@ class MovieSearchApp:
         self.initialize_checkboxes_and_button()
 
     def create_database_ui(self, parent):
-        self.database_tree = ttk.Treeview(parent, columns=self.detail_labels, show="headings")
+        self.database_tree = ttk.Treeview(parent, columns=self.dblabels, show="headings")
         self.database_tree.pack(padx=10, pady=10, fill="both", expand=True)
 
-        for label in self.detail_labels:
+        for label in self.dblabels:
             self.database_tree.heading(label, text=label)
             self.database_tree.column(label, width=150)
 
+        self.update_database_ui()
+
+
+    def save_search_count(self):
+        filename = 'analyze.csv'
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        counter_updated = False
+
         try:
-            with open("movie_results.csv", "r") as csv_file:
+            with open(filename, 'r') as csv_file:
                 csv_reader = csv.reader(csv_file)
-                header = next(csv_reader)
-                for row in csv_reader:
-                    self.database_tree.insert("", "end", values=row)
+                rows = list(csv_reader)
+
+            for row in rows:
+                if row[0] == current_date:
+                    row[1] = str(int(row[1]) + 1)
+                    counter_updated = True
+                    break
+
+            if not counter_updated:
+                rows.append([current_date, '1'])
+
+            with open(filename, 'w', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerows(rows)
+
         except FileNotFoundError:
-            pass
-
-
+            with open(filename, 'w', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(['Date', 'Counter'])
+                csv_writer.writerow([current_date, '1'])
 
     def search_movie(self):
         self.id_counter += 1
@@ -114,8 +161,8 @@ class MovieSearchApp:
         url = f"http://www.omdbapi.com/?apikey={self.api_key}&t={movie_name}&y={movie_year}&type={movie_type}"
         response = requests.get(url)
         movie_data = response.json()
-
         self.update_ui(movie_data)
+        self.save_search_count()  # Update the search count
         self.update_database_ui()
 
     def update_ui(self, movie_data):
@@ -133,7 +180,6 @@ class MovieSearchApp:
                 self.poster_label.config(image=self.poster_image)
 
             self.detail_values = [
-                self.id_counter,
                 movie_data.get("Title"), movie_data.get("Genre"), movie_data.get("Runtime"),
                 movie_data.get("Year"), movie_data.get("Director"), movie_data.get("imdbRating"),
                 movie_data.get("imdbVotes"), self.get_rotten_tomatoes_rating(movie_data),
@@ -185,27 +231,22 @@ class MovieSearchApp:
         save_button = tk.Button(self.result_frame, text="Save", command=self.save_result)
         save_button.grid(row=18, column=0, columnspan=2, padx=10, pady=10, sticky="we")
 
-    def save_result(self):
-        # Get the next available ID from the CSV file
+    def save_analyze_data(self, count):
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        analyze_data = [current_date, count]
 
-        highest_id = 0
         try:
-            with open("movie_results.csv", 'r', newline='') as csv_file:
-                csv_reader = csv.reader(csv_file)
-                next(csv_reader)  # Skip the header row
-                for row in csv_reader:
-                    if row:
-                        row_id = int(row[0])  # Assuming ID is the first column
-                        highest_id = max(highest_id, row_id)
-        except FileNotFoundError:
-            pass
+            with open("analyze.csv", "a", newline="") as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(analyze_data)
+        except Exception as e:
+            print("Error saving analyze data:", e)
 
-        next_id = highest_id + 1
+    def save_result(self):
+        watched = 'yes' if self.watched_var.get() == 'yes' else 'no'
+        want_to_watch = 'yes' if self.want_to_watch_var.get() == 'yes' else 'no'
 
-        watched = 1 if self.watched_var.get() == 1 else 0
-        want_to_watch = 1 if self.want_to_watch_var.get() == 1 else 0
-
-        title = self.detail_values[1]
+        title = self.detail_values[0]
 
         # Check if the title already exists in the CSV file
         is_title_exists = False
@@ -213,7 +254,7 @@ class MovieSearchApp:
             with open("movie_results.csv", 'r', newline='') as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for row in csv_reader:
-                    if row and row[1] == title:
+                    if row and row[0] == title:
                         is_title_exists = True
                         break
         except FileNotFoundError:
@@ -231,12 +272,12 @@ class MovieSearchApp:
             if is_file_empty:
                 with open("movie_results.csv", 'a', newline='') as csv_file:
                     csv_writer = csv.writer(csv_file)
-                    csv_writer.writerow(self.detail_labels[1:] + ["Watched", "I Want to Watch"])  # Add new columns
+                    csv_writer.writerow(self.dblabels[1:] + ["Watched", "I Want to Watch"])  # Add new columns
 
             # Append the data to the CSV file
             with open("movie_results.csv", 'a', newline='') as csv_file:
                 csv_writer = csv.writer(csv_file)
-                csv_writer.writerow([next_id] + self.detail_values[1:] + [watched, want_to_watch])  # Append data
+                csv_writer.writerow(self.detail_values[0:] + [watched, want_to_watch])  # Append data
 
             # Show success message box
             messagebox.showinfo("Success", "Data has been saved")
