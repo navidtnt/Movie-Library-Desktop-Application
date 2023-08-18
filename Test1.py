@@ -118,25 +118,22 @@ class MovieSearchApp:
         self.update_ui(movie_data)
         self.update_database_ui()
 
-
     def update_ui(self, movie_data):
+        # Clear previous data from the table and poster image
+        self.poster_label.config(image=None)
+        self.text_widget.config(state="normal")
+        self.text_widget.delete("1.0", tk.END)
+
         if movie_data.get("Response") == "True":
             poster_url = movie_data.get("Poster")
             if poster_url != "N/A":
                 image = Image.open(requests.get(poster_url, stream=True).raw)
                 image.thumbnail((200, 300))
                 self.poster_image = ImageTk.PhotoImage(image)
-                # Create a Label for the poster image with a border
-                self.poster_label = tk.Label(self.result_frame, image=self.poster_image,
-                                             borderwidth=2, relief="solid")
-                self.poster_label.grid(row=0, column=0, rowspan=16, padx=10, pady=5)
-
-
-
-            # Initialize detail_labels and detail_values
+                self.poster_label.config(image=self.poster_image)
 
             self.detail_values = [
-                self.id_counter,  # ID
+                self.id_counter,
                 movie_data.get("Title"), movie_data.get("Genre"), movie_data.get("Runtime"),
                 movie_data.get("Year"), movie_data.get("Director"), movie_data.get("imdbRating"),
                 movie_data.get("imdbVotes"), self.get_rotten_tomatoes_rating(movie_data),
@@ -144,27 +141,25 @@ class MovieSearchApp:
                 movie_data.get("Rated"), movie_data.get("Released"), movie_data.get("Writer"),
                 movie_data.get("Country"), movie_data.get("Awards"), movie_data.get("Plot")
             ]
-            # Display movie details in tabulated format
+
             movie_details = [
                 [label.strip(":"), value] for label, value in zip(self.detail_labels, self.detail_values)
             ]
 
             table = tabulate(movie_details, headers=["Name", "Details"], tablefmt="grid")
+            self.text_widget.config(state="normal", bg="#FFFFE0")
             self.text_widget.delete("1.0", tk.END)
             self.text_widget.insert(tk.END, table)
-
-            # Disable editing of the Text widget
             self.text_widget.config(state="disabled")
-            # Set the background color to light yellow
-            self.text_widget.config(bg="#FFFFE0")
-            # Update the Text widget with tabulated movie details
-            self.text_widget.delete("1.0", tk.END)
-            table = tabulate(zip(self.detail_labels, self.detail_values), headers=["Name", "Details"], tablefmt="grid")
-            self.text_widget.insert(tk.END, table)
-            # Update the UI of the Database tab
-            self.update_database_ui()
 
-            self.initialize_checkboxes_and_button()
+        else:
+            error_message = "Movie data not found."
+            self.text_widget.insert(tk.END, error_message)
+
+        # Update the UI of the Database tab
+        self.update_database_ui()
+
+        self.initialize_checkboxes_and_button()
 
     def get_rotten_tomatoes_rating(self, movie_data):
         ratings = movie_data.get("Ratings")
@@ -193,13 +188,19 @@ class MovieSearchApp:
     def save_result(self):
         # Get the next available ID from the CSV file
 
-        next_id = 1
+        highest_id = 0
         try:
             with open("movie_results.csv", 'r', newline='') as csv_file:
                 csv_reader = csv.reader(csv_file)
-                next_id = sum(1 for _ in csv_reader) + 1
+                next(csv_reader)  # Skip the header row
+                for row in csv_reader:
+                    if row:
+                        row_id = int(row[0])  # Assuming ID is the first column
+                        highest_id = max(highest_id, row_id)
         except FileNotFoundError:
             pass
+
+        next_id = highest_id + 1
 
         watched = 1 if self.watched_var.get() == 1 else 0
         want_to_watch = 1 if self.want_to_watch_var.get() == 1 else 0
