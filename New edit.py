@@ -218,10 +218,12 @@ class MovieSearchApp:
 
         # Create a frame for search functionality
         search_frame = tk.Frame(parent)
+        search_frame.config(bg="#C1C1C1")
         search_frame.pack(padx=10, pady=(0, 5), fill="x")
         search_frame.place(x=50, y=300)  # Adjust placement here
 
         title_label = tk.Label(search_frame, text="Search Title:")
+        title_label.config(bg="#C1C1C1")
         title_label.pack(side="top", anchor="w")
 
         self.title_entry = tk.Entry(search_frame)
@@ -229,6 +231,7 @@ class MovieSearchApp:
         self.title_entry.bind("<KeyRelease>", self.search_database)
 
         year_label = tk.Label(search_frame, text="Search Year:")
+        year_label.config(bg="#C1C1C1")
         year_label.pack(side="top", anchor="w")
 
         self.year_entry = tk.Entry(search_frame)
@@ -236,6 +239,7 @@ class MovieSearchApp:
         self.year_entry.bind("<KeyRelease>", self.search_database)
 
         director_label = tk.Label(search_frame, text="Search Director:")
+        director_label.config(bg="#C1C1C1")
         director_label.pack(side="top", anchor="w")
 
         self.director_entry = tk.Entry(search_frame)
@@ -243,6 +247,7 @@ class MovieSearchApp:
         self.director_entry.bind("<KeyRelease>", self.search_database)
 
         genre_label = tk.Label(search_frame, text="Search Genre:")
+        genre_label.config(bg="#C1C1C1")
         genre_label.pack(side="top", anchor="w")
 
         self.genre_entry = tk.Entry(search_frame)
@@ -250,6 +255,7 @@ class MovieSearchApp:
         self.genre_entry.bind("<KeyRelease>", self.search_database)
 
         imdb_rating_label = tk.Label(search_frame, text="Search IMDb Rating:")
+        imdb_rating_label.config(bg="#C1C1C1")
         imdb_rating_label.pack(side="top", anchor="w")
 
         self.imdb_rating_entry = tk.Entry(search_frame)
@@ -257,6 +263,7 @@ class MovieSearchApp:
         self.imdb_rating_entry.bind("<KeyRelease>", self.search_database)
 
         rotten_tomatoes_label = tk.Label(search_frame, text="Search Rotten Tomatoes:")
+        rotten_tomatoes_label.config(bg="#C1C1C1")
         rotten_tomatoes_label.pack(side="top", anchor="w")
 
         self.rotten_tomatoes_entry = tk.Entry(search_frame)
@@ -264,6 +271,7 @@ class MovieSearchApp:
         self.rotten_tomatoes_entry.bind("<KeyRelease>", self.search_database)
 
         actors_label = tk.Label(search_frame, text="Search Actors:")
+        actors_label.config(bg="#C1C1C1")
         actors_label.pack(side="top", anchor="w")
 
         self.actors_entry = tk.Entry(search_frame)
@@ -271,6 +279,7 @@ class MovieSearchApp:
         self.actors_entry.bind("<KeyRelease>", self.search_database)
 
         writer_label = tk.Label(search_frame, text="Search Writer:")
+        writer_label.config(bg="#C1C1C1")
         writer_label.pack(side="top", anchor="w")
 
         self.writer_entry = tk.Entry(search_frame)
@@ -278,10 +287,12 @@ class MovieSearchApp:
         self.writer_entry.bind("<KeyRelease>", self.search_database)
 
         watched_check = tk.Checkbutton(search_frame, text="Watched", variable=self.watched_var, onvalue=1, offvalue=0)
+        watched_check.config(bg="#C1C1C1")
         watched_check.pack(side="top", anchor="w")
 
         want_to_watch_check = tk.Checkbutton(search_frame, text="I Want to Watch", variable=self.want_to_watch_var,
                                              onvalue=1, offvalue=0)
+        want_to_watch_check.config(bg="#C1C1C1")
         want_to_watch_check.pack(side="top", anchor="w")
 
 
