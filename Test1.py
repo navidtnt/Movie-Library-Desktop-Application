@@ -135,7 +135,7 @@ class MovieSearchApp:
         self.movie_type_combo = ttk.Combobox(input_frame, values=["movie", "series", "episode"])
         self.movie_type_combo.grid(row=0, column=5, padx=5)
 
-        search_button = tk.Button(input_frame, text="Search", command=self.search_movie)
+        search_button = tk.Button(input_frame, text="Search", command=self.search_movie, width=20, height=2)
         search_button.grid(row=0, column=6, padx=10)
 
         separator = ttk.Separator(parent, orient="horizontal")
@@ -300,8 +300,8 @@ class MovieSearchApp:
         I_want_to_watch_radio.grid(row=17, column=1, padx=10, pady=5, sticky="w")
 
         # Create "Save" button
-        save_button = tk.Button(self.result_frame, text="Save", command=self.save_result)
-        save_button.grid(row=18, column=0, columnspan=2, padx=10, pady=10, sticky="we")
+        save_button = tk.Button(self.result_frame, text="Save", command=self.save_result, width=20, height=2)
+        save_button.grid(row=17, column=0, columnspan=2)
 
     def save_analyze_data(self, count):
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
