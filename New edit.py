@@ -286,14 +286,7 @@ class MovieSearchApp:
         self.writer_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
         self.writer_entry.bind("<KeyRelease>", self.search_database)
 
-        watched_check = tk.Checkbutton(search_frame, text="Watched", variable=self.watched_var, onvalue=1, offvalue=0)
-        watched_check.config(bg="#C1C1C1")
-        watched_check.pack(side="top", anchor="w")
 
-        want_to_watch_check = tk.Checkbutton(search_frame, text="I Want to Watch", variable=self.want_to_watch_var,
-                                             onvalue=1, offvalue=0)
-        want_to_watch_check.config(bg="#C1C1C1")
-        want_to_watch_check.pack(side="top", anchor="w")
 
 
 
@@ -306,7 +299,7 @@ class MovieSearchApp:
         imdb_rating_text = self.imdb_rating_entry.get()
         rotten_tomatoes_text = self.rotten_tomatoes_entry.get()
         actors_text = self.actors_entry.get().lower()
-        writer_text = self.writer_entry.get().lower()  # Retrieve writer input value
+        writer_text = self.writer_entry.get().lower()
 
 
         filtered_rows = []
@@ -317,6 +310,7 @@ class MovieSearchApp:
                 header = next(csv_reader)
                 for row in csv_reader:
                     if title_text in row[0].lower() and year_text in row[3] and director_text in row[4].lower() and genre_text in row[1].lower() and imdb_rating_text in row[6] and rotten_tomatoes_text in row[7] and actors_text in row[8].lower() and writer_text in row[13].lower() :
+
                         filtered_rows.append(row)
 
         except FileNotFoundError:
