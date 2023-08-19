@@ -286,6 +286,20 @@ class MovieSearchApp:
         self.writer_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
         self.writer_entry.bind("<KeyRelease>", self.search_database)
 
+        search_frame_buttons = tk.Frame(parent)  # Create a new frame for the buttons
+        search_frame_buttons.config(bg="#C1C1C1")
+        search_frame_buttons.pack(padx=10, pady=(0, 5), fill="x")
+        search_frame_buttons.place(x=250, y=310)  # Adjust placement here
+
+        # Create buttons to show watched and want to watch movies within the new frame
+        show_watched_button = ttk.Button(search_frame_buttons, text="Show Watched", command=self.search_watched_movies,
+                                         width=20)
+        show_watched_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
+
+        show_want_to_watch_button = ttk.Button(search_frame_buttons, text="Show I Want to Watch",
+                                               command=self.search_want_to_watch_movies, width=20)
+        show_want_to_watch_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
+
 
 
 
@@ -317,6 +331,36 @@ class MovieSearchApp:
             pass
 
         self.update_database_ui(rows=filtered_rows)  # Update the UI with filtered data
+
+    def search_watched_movies(self):
+        filtered_rows = []
+
+        try:
+            with open("movie_results.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                header = next(csv_reader)
+                for row in csv_reader:
+                    if row[-2] == 'yes':  # Check Watched column
+                        filtered_rows.append(row)
+        except FileNotFoundError:
+            pass
+
+        self.update_database_ui(rows=filtered_rows)
+
+    def search_want_to_watch_movies(self):
+        filtered_rows = []
+
+        try:
+            with open("movie_results.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                header = next(csv_reader)
+                for row in csv_reader:
+                    if row[-1] == 'yes':  # Check I Want to Watch column
+                        filtered_rows.append(row)
+        except FileNotFoundError:
+            pass
+
+        self.update_database_ui(rows=filtered_rows)
     def save_search_count(self):
         filename = 'analyze.csv'
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
