@@ -374,10 +374,10 @@ class MovieSearchApp:
         watched_radio.config(bg="#D9D9D9")
         watched_radio.place(x=260, y=450, anchor="w")
 
-        I_want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.watched_var,
-                                               value=0)
-        I_want_to_watch_radio.config(bg="#D9D9D9")
-        I_want_to_watch_radio.place(x=360, y=450, anchor="w")
+        want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.want_to_watch_var,
+                                             value=1)
+        want_to_watch_radio.config(bg="#D9D9D9")
+        want_to_watch_radio.place(x=360, y=450, anchor="w")
 
         # Apply the "breeze" theme to the button
         style = ThemedStyle(self.result_frame)
@@ -397,8 +397,8 @@ class MovieSearchApp:
             print("Error saving analyze data:", e)
 
     def save_result(self):
-        watched = 'yes' if self.watched_var.get() == 'yes' else 'no'
-        want_to_watch = 'yes' if self.want_to_watch_var.get() == 'yes' else 'no'
+        watched = 'yes' if self.watched_var.get() == 1 else 'no'
+        want_to_watch = 'yes' if self.want_to_watch_var.get() == 1 else 'no'
 
         title = self.detail_values[0]
 
