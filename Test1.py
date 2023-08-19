@@ -6,6 +6,7 @@ import csv
 import tkinter.messagebox as messagebox
 from tabulate import tabulate  # Import tabulate
 import datetime
+from tkinter import Scrollbar
 
 
 class MovieSearchApp:
@@ -54,13 +55,13 @@ class MovieSearchApp:
 
     def create_analyzed_data_ui(self, parent):
         self.analyzed_tree = ttk.Treeview(parent, columns=["Date", "Count"], show="headings")
-        self.analyzed_tree.pack(padx=10, pady=10, fill="both", expand=True)
+        self.analyzed_tree.pack(padx=10, pady=10, fill="both", expand=False)
 
         self.analyzed_tree.heading("Date", text="Date")
-        self.analyzed_tree.column("Date", width=150)
+        self.analyzed_tree.column("Date", width=10)
 
         self.analyzed_tree.heading("Count", text="Search Count")
-        self.analyzed_tree.column("Count", width=150)
+        self.analyzed_tree.column("Count", width=10)
 
         self.update_analyzed_data_ui()
 
@@ -146,13 +147,27 @@ class MovieSearchApp:
 
     def create_database_ui(self, parent):
         self.database_tree = ttk.Treeview(parent, columns=self.dblabels, show="headings")
-        self.database_tree.pack(padx=10, pady=10, fill="both", expand=True)
+        self.database_tree.pack(padx=10, pady=10, fill="both", expand=False)
 
         for label in self.dblabels:
             self.database_tree.heading(label, text=label)
             self.database_tree.column(label, width=150)
 
         self.update_database_ui()
+        # Create a horizontal scrollbar
+        horizontal_scrollbar = ttk.Scrollbar(parent, orient="horizontal", command=self.database_tree.xview)
+        horizontal_scrollbar.pack(side="bottom", fill="x")
+        # Create a vertical scrollbar
+        vertical_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.database_tree.yview)
+        vertical_scrollbar.pack(side="bottom", fill="y")
+
+        # Configure Treeview to use the horizontal scrollbar
+        self.database_tree.configure(xscrollcommand=horizontal_scrollbar.set, yscrollcommand=vertical_scrollbar.set)
+        # Place the scrollbars where you want them
+        vertical_scrollbar.place(relx=1, rely=0, relheight=1, anchor="ne")
+        horizontal_scrollbar.place(relx=0, rely=1, relwidth=1, anchor="sw")
+
+
 
     def save_search_count(self):
         filename = 'analyze.csv'
@@ -325,5 +340,6 @@ class MovieSearchApp:
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.geometry("1000x600")
     app = MovieSearchApp(root)
     root.mainloop()
