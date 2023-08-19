@@ -373,7 +373,6 @@ class MovieSearchApp:
 
             # Show success message box
             messagebox.showinfo("Success", "Data has been saved")
-
         else:
             # Show warning message box
             messagebox.showwarning("Warning", f"Title '{title}' already exists")
