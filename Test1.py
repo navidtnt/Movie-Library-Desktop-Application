@@ -45,8 +45,10 @@ class MovieSearchApp:
 
         # Create the first tab for New Search
         new_search_tab = ttk.Frame(self.notebook)
+
         self.notebook.add(new_search_tab, text="New Search")
         self.create_search_ui(new_search_tab)
+
 
         # Create the second tab for Database
         database_tab = ttk.Frame(self.notebook)
@@ -140,14 +142,17 @@ class MovieSearchApp:
         separator.pack(fill="x", padx=10, pady=5)
 
         self.result_frame = tk.Frame(parent)
+        self.result_frame.config(bg="#D9D9D9")
         self.result_frame.pack(padx=10, pady=10)
         # Create a placeholder label for the poster image
         self.poster_label = tk.Label(self.result_frame, text="Poster", font=("Arial", 12, "bold"),
                                      borderwidth=2, relief="solid", padx=80, pady=150)
         self.poster_label.grid(row=0, column=0, rowspan=16, padx=10, pady=50)
+        self.poster_label.config(bg="#00BFFF")
 
         self.text_widget = tk.Text(self.result_frame, wrap="none")
         self.text_widget.grid(row=0, column=1, padx=10, pady=5)
+
 
         self.initialize_checkboxes_and_button()
 
@@ -159,6 +164,7 @@ class MovieSearchApp:
         self.database_tree = ttk.Treeview(
             database_frame, columns=self.dblabels, show="headings"
         )
+        database_frame.config(bg="#D9D9D9")
         self.database_tree.pack(fill="both", expand=False)
 
         for label in self.dblabels:
@@ -231,7 +237,7 @@ class MovieSearchApp:
 
     def update_ui(self, movie_data):
         # Clear previous data from the table and poster image
-        self.poster_label.config(image=None, bg="gray")
+        self.poster_label.config(image=None, bg="#D9D9D9")
         self.text_widget.config(state="normal")
         self.text_widget.delete("1.0", tk.END)
 
@@ -241,7 +247,7 @@ class MovieSearchApp:
                 image = Image.open(requests.get(poster_url, stream=True).raw)
                 image.thumbnail((200, 300))
                 self.poster_image = ImageTk.PhotoImage(image)
-                self.poster_label.config(image=self.poster_image, bg="gray")
+                self.poster_label.config(image=self.poster_image, bg="#D9D9D9")
 
             self.detail_values = [
                 movie_data.get("Title"), movie_data.get("Genre"), movie_data.get("Runtime"),
@@ -285,11 +291,13 @@ class MovieSearchApp:
 
         # Create radio buttons for "Watched" and "I Want to Watch"
         watched_radio = tk.Radiobutton(self.result_frame, text="Watched", variable=self.watched_var, value=1)
+        watched_radio.config(bg="#D9D9D9")
         watched_radio.grid(row=17, column=0, padx=10, pady=5, sticky="w")
 
-        want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.watched_var,
+        I_want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.watched_var,
                                              value=0)
-        want_to_watch_radio.grid(row=17, column=1, padx=10, pady=5, sticky="w")
+        I_want_to_watch_radio.config(bg="#D9D9D9")
+        I_want_to_watch_radio.grid(row=17, column=1, padx=10, pady=5, sticky="w")
 
         # Create "Save" button
         save_button = tk.Button(self.result_frame, text="Save", command=self.save_result)
@@ -355,6 +363,7 @@ class MovieSearchApp:
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.config(bg="#D9D9D9")
     root.geometry("1000x600")
     app = MovieSearchApp(root)
     root.mainloop()
