@@ -33,6 +33,11 @@ class MovieSearchApp:
 
     def initialize_ui(self):
         self.root.title("Movie Search App")
+        # Create a custom style for the Treeview header
+        style = ttk.Style()
+        style.theme_use("default")  # Use the default theme as a base
+        style.configure("Treeview.Heading", background="gray")  # Set the header background color
+
 
         # Create a notebook for tabs
         self.notebook = ttk.Notebook(self.root)
@@ -77,9 +82,6 @@ class MovieSearchApp:
         except FileNotFoundError:
             pass
 
-
-
-
     def load_search_count(self):
         # Load the search count and date from the analyze.csv file
         try:
@@ -110,19 +112,23 @@ class MovieSearchApp:
 
     def create_search_ui(self, parent):
         input_frame = tk.Frame(parent)
+        input_frame.config(bg="")
         input_frame.pack(padx=10, pady=10)
 
         movie_name_label = tk.Label(input_frame, text="Movie Name:")
+        movie_name_label.config(bg="#D9D9D9")
         movie_name_label.grid(row=0, column=0, sticky="e")
         self.movie_name_entry = tk.Entry(input_frame)
         self.movie_name_entry.grid(row=0, column=1, padx=5)
 
         movie_year_label = tk.Label(input_frame, text="Year of Release:")
+        movie_year_label.config(bg="#D9D9D9")
         movie_year_label.grid(row=0, column=2, sticky="e")
         self.movie_year_entry = tk.Entry(input_frame)
         self.movie_year_entry.grid(row=0, column=3, padx=5)
 
         movie_type_label = tk.Label(input_frame, text="Type:")
+        movie_type_label.config(bg="#D9D9D9")
         movie_type_label.grid(row=0, column=4, sticky="e")
         self.movie_type_combo = ttk.Combobox(input_frame, values=["movie", "series", "episode"])
         self.movie_type_combo.grid(row=0, column=5, padx=5)
@@ -146,28 +152,38 @@ class MovieSearchApp:
         self.initialize_checkboxes_and_button()
 
     def create_database_ui(self, parent):
-        self.database_tree = ttk.Treeview(parent, columns=self.dblabels, show="headings")
-        self.database_tree.pack(padx=10, pady=10, fill="both", expand=False)
+        # Create a frame to hold the Treeview widget and the scrollbars
+        database_frame = tk.Frame(parent)
+        database_frame.pack(padx=10, pady=10, fill="both", expand=True)
+
+        self.database_tree = ttk.Treeview(
+            database_frame, columns=self.dblabels, show="headings"
+        )
+        self.database_tree.pack(fill="both", expand=False)
 
         for label in self.dblabels:
             self.database_tree.heading(label, text=label)
             self.database_tree.column(label, width=150)
 
+        # Set the header background color to gray only for self.database_tree
+        style = ttk.Style()
+        style.configure(
+            f"{self.database_tree}._header", background="gray"
+        )  # Use the correct style name
+
         self.update_database_ui()
-        # Create a horizontal scrollbar
-        horizontal_scrollbar = ttk.Scrollbar(parent, orient="horizontal", command=self.database_tree.xview)
-        horizontal_scrollbar.pack(side="bottom", fill="x")
+
+
+
+
+        horizontal_scrollbar = ttk.Scrollbar(self.database_tree, orient="horizontal", command=self.database_tree.xview)
+        horizontal_scrollbar.place(relx=0, rely=0.95, relwidth=0.99, relheight=0.05)
+        self.database_tree.config(xscrollcommand=horizontal_scrollbar.set)
+
         # Create a vertical scrollbar
-        vertical_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=self.database_tree.yview)
-        vertical_scrollbar.pack(side="bottom", fill="y")
-
-        # Configure Treeview to use the horizontal scrollbar
-        self.database_tree.configure(xscrollcommand=horizontal_scrollbar.set, yscrollcommand=vertical_scrollbar.set)
-        # Place the scrollbars where you want them
-        vertical_scrollbar.place(relx=1, rely=0, relheight=1, anchor="ne")
-        horizontal_scrollbar.place(relx=0, rely=1, relwidth=1, anchor="sw")
-
-
+        vertical_scrollbar = ttk.Scrollbar(self.database_tree, orient="vertical", command=self.database_tree.yview)
+        vertical_scrollbar.place(relx=0.98, rely=0, relwidth=0.03, relheight=0.99)
+        self.database_tree.config(yscrollcommand=vertical_scrollbar.set)
 
     def save_search_count(self):
         filename = 'analyze.csv'
@@ -215,7 +231,7 @@ class MovieSearchApp:
 
     def update_ui(self, movie_data):
         # Clear previous data from the table and poster image
-        self.poster_label.config(image=None)
+        self.poster_label.config(image=None, bg="gray")
         self.text_widget.config(state="normal")
         self.text_widget.delete("1.0", tk.END)
 
@@ -225,7 +241,7 @@ class MovieSearchApp:
                 image = Image.open(requests.get(poster_url, stream=True).raw)
                 image.thumbnail((200, 300))
                 self.poster_image = ImageTk.PhotoImage(image)
-                self.poster_label.config(image=self.poster_image)
+                self.poster_label.config(image=self.poster_image, bg="gray")
 
             self.detail_values = [
                 movie_data.get("Title"), movie_data.get("Genre"), movie_data.get("Runtime"),
@@ -335,7 +351,6 @@ class MovieSearchApp:
             messagebox.showwarning("Warning", f"Title '{title}' already exists")
 
         self.update_database_ui()
-
 
 
 if __name__ == "__main__":
