@@ -114,29 +114,41 @@ class MovieSearchApp:
 
     def create_search_ui(self, parent):
         input_frame = tk.Frame(parent)
-        input_frame.config(bg="")
+        input_frame.config(bg="#F5F5DC")
         input_frame.pack(padx=10, pady=10)
+        input_frame.place(x=10, y=10, width=980, height=185)
+        input_frame.config(borderwidth=1, relief="solid", highlightbackground="gray")
 
-        movie_name_label = tk.Label(input_frame, text="Movie Name:")
-        movie_name_label.config(bg="#D9D9D9")
-        movie_name_label.grid(row=0, column=0, sticky="e")
-        self.movie_name_entry = tk.Entry(input_frame)
-        self.movie_name_entry.grid(row=0, column=1, padx=5)
 
-        movie_year_label = tk.Label(input_frame, text="Year of Release:")
-        movie_year_label.config(bg="#D9D9D9")
-        movie_year_label.grid(row=0, column=2, sticky="e")
-        self.movie_year_entry = tk.Entry(input_frame)
-        self.movie_year_entry.grid(row=0, column=3, padx=5)
+        movie_name_label = tk.Label(input_frame, text="Movie Name", font=("Arial", 12, "bold"))
+        movie_name_label.config(bg="#F5F5DC")
+        movie_name_label.place(x=10, y=10)
 
-        movie_type_label = tk.Label(input_frame, text="Type:")
-        movie_type_label.config(bg="#D9D9D9")
-        movie_type_label.grid(row=0, column=4, sticky="e")
-        self.movie_type_combo = ttk.Combobox(input_frame, values=["movie", "series", "episode"])
-        self.movie_type_combo.grid(row=0, column=5, padx=5)
+        self.movie_name_entry = tk.Entry(input_frame,font=('Arial 14'))
+        self.movie_name_entry.place(x=200, y=11)
+        self.movie_name_entry.bind("<Return>", self.search_movie)
+
+        movie_year_label = tk.Label(input_frame, text="Year of Release", font=("Arial", 12, "bold"))
+        movie_year_label.config(bg="#F5F5DC")
+        movie_year_label.place(x=10, y=50)
+        self.movie_year_entry = tk.Entry(input_frame,font=('Arial 14'))
+        self.movie_year_entry.place(x=200, y=51)
+
+        movie_type_label = tk.Label(input_frame, text="Type", font=("Arial", 12, "bold"))
+        movie_type_label.config(bg="#F5F5DC")
+        movie_type_label.place(x=10, y=90)
+        self.movie_type_combo = ttk.Combobox(input_frame,font=('Arial 14'), values=["movie", "series", "episode"])
+        self.movie_type_combo.place(x=200, y=91)
+
+        # Create a Canvas widget to draw the line
+        canvas = tk.Canvas(input_frame, bg="#D9D9D9", width=1, height=110, highlightthickness=0)
+        canvas.place(x=180, y=10)
+        canvas.create_line(0, 0, 0, 380, fill="black")
+
 
         search_button = tk.Button(input_frame, text="Search", command=self.search_movie, width=20, height=2)
-        search_button.grid(row=0, column=6, padx=10)
+        search_button.place(x=440, y=11)
+
 
         separator = ttk.Separator(parent, orient="horizontal")
         separator.pack(fill="x", padx=10, pady=5)
@@ -145,7 +157,9 @@ class MovieSearchApp:
         self.result_frame.config(bg="#D9D9D9")
         self.result_frame.pack(padx=10, pady=10)
         # Increase the size of the frame using .place()
-        self.result_frame.place(x=10, y=80, width=980, height=480)
+        self.result_frame.place(x=10, y=200, width=980, height=480)
+        # Add a gray border around the frame
+        self.result_frame.config(borderwidth=1, relief="solid", highlightbackground="gray")
         # Create a placeholder label for the poster image
         self.poster_label = tk.Label(self.result_frame, text="Poster", font=("Arial", 12, "bold"),
                                      borderwidth=2, relief="solid", padx=80, pady=150)
@@ -223,7 +237,7 @@ class MovieSearchApp:
                 csv_writer.writerow(['Date', 'Count'])
                 csv_writer.writerow([current_date, '1'])
 
-    def search_movie(self):
+    def search_movie(self, event=None):
         self.id_counter += 1
         movie_name = self.movie_name_entry.get()
         movie_year = self.movie_year_entry.get()
@@ -366,6 +380,7 @@ class MovieSearchApp:
 if __name__ == "__main__":
     root = tk.Tk()
     root.config(bg="#D9D9D9")
-    root.geometry("1000x600")
+    root.geometry("1000x750")
+    root.resizable(False, False)  # Lock resizing
     app = MovieSearchApp(root)
     root.mainloop()
