@@ -147,10 +147,10 @@ class MovieSearchApp:
         canvas.place(x=180, y=10)
         canvas.create_line(0, 0, 0, 380, fill="black")
 
-        # Apply the "scidblue" theme to the button
+        # Apply the "breeze" theme to the button
         style = ThemedStyle(input_frame)
-        style.set_theme("scidblue")  # Apply the "scidblue" theme
-        search_button = ttk.Button(input_frame, text="Search", command=self.search_movie, width= 40)
+        style.set_theme("breeze")  # Apply the "breeze" theme
+        search_button = ttk.Button(input_frame, text="Search", command=self.search_movie)
         search_button.place(x=440, y=11)
 
         separator = ttk.Separator(parent, orient="horizontal")
