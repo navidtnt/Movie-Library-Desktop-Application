@@ -10,7 +10,6 @@ from tkinter import Scrollbar
 from ttkthemes import ThemedStyle
 
 
-
 class MovieSearchApp:
     def __init__(self, root):
         self.root = root
@@ -40,7 +39,6 @@ class MovieSearchApp:
         style.theme_use("default")  # Use the default theme as a base
         style.configure("Treeview.Heading", background="gray")  # Set the header background color
 
-
         # Create a notebook for tabs
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill="both", expand=True)
@@ -50,7 +48,6 @@ class MovieSearchApp:
 
         self.notebook.add(new_search_tab, text="New Search")
         self.create_search_ui(new_search_tab)
-
 
         # Create the second tab for Database
         database_tab = ttk.Frame(self.notebook)
@@ -99,8 +96,16 @@ class MovieSearchApp:
             self.last_search_date = None
             self.search_count = 0
 
-    def update_database_ui(self):
+    def update_database_ui(self, rows=None):
         self.database_tree.delete(*self.database_tree.get_children())  # Clear existing table rows
+
+        data_rows = rows if rows is not None else self.get_all_database_rows()
+
+        for row in data_rows:
+            self.database_tree.insert("", "end", values=row)
+
+    def get_all_database_rows(self):
+        rows = []
 
         try:
             with open("movie_results.csv", "r") as csv_file:
@@ -110,9 +115,11 @@ class MovieSearchApp:
                 for row in csv_reader:
                     row.insert(0, str(i))
                     i += 1
-                    self.database_tree.insert("", "end", values=row)
+                    rows.append(row)
         except FileNotFoundError:
             pass
+
+        return rows
 
     def create_search_ui(self, parent):
         input_frame = tk.Frame(parent)
@@ -197,9 +204,6 @@ class MovieSearchApp:
 
         self.update_database_ui()
 
-
-
-
         horizontal_scrollbar = ttk.Scrollbar(self.database_tree, orient="horizontal", command=self.database_tree.xview)
         horizontal_scrollbar.place(relx=0, rely=0.95, relwidth=0.99, relheight=0.05)
         self.database_tree.config(xscrollcommand=horizontal_scrollbar.set)
@@ -208,6 +212,35 @@ class MovieSearchApp:
         vertical_scrollbar = ttk.Scrollbar(self.database_tree, orient="vertical", command=self.database_tree.yview)
         vertical_scrollbar.place(relx=0.98, rely=0, relwidth=0.03, relheight=0.99)
         self.database_tree.config(yscrollcommand=vertical_scrollbar.set)
+
+        # Create a frame for search functionality
+        search_frame = tk.Frame(parent)
+        search_frame.pack(padx=10, pady=(0, 5), fill="x")
+        search_frame.place(x=50, y=300)  # Adjust placement here
+
+        search_label = tk.Label(search_frame, text="Search Title:")
+        search_label.pack(side="left")
+
+        self.search_entry = tk.Entry(search_frame)
+        self.search_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        self.search_entry.bind("<KeyRelease>", self.search_database)
+
+    def search_database(self, event=None):
+        search_text = self.search_entry.get().lower()
+        filtered_rows = []
+
+        try:
+            with open("movie_results.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                header = next(csv_reader)
+                for row in csv_reader:
+                    if search_text in row[0].lower():  # Search in the first column (title)
+                        filtered_rows.append(row)
+
+        except FileNotFoundError:
+            pass
+
+        self.update_database_ui(rows=filtered_rows)  # Update the UI with filtered data
 
     def save_search_count(self):
         filename = 'analyze.csv'
