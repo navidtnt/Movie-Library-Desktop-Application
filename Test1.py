@@ -10,6 +10,7 @@ from tkinter import Scrollbar
 from ttkthemes import ThemedStyle
 
 
+
 class MovieSearchApp:
     def __init__(self, root):
         self.root = root
@@ -39,6 +40,7 @@ class MovieSearchApp:
         style.theme_use("default")  # Use the default theme as a base
         style.configure("Treeview.Heading", background="gray")  # Set the header background color
 
+
         # Create a notebook for tabs
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill="both", expand=True)
@@ -48,6 +50,7 @@ class MovieSearchApp:
 
         self.notebook.add(new_search_tab, text="New Search")
         self.create_search_ui(new_search_tab)
+
 
         # Create the second tab for Database
         database_tab = ttk.Frame(self.notebook)
@@ -218,15 +221,41 @@ class MovieSearchApp:
         search_frame.pack(padx=10, pady=(0, 5), fill="x")
         search_frame.place(x=50, y=300)  # Adjust placement here
 
-        search_label = tk.Label(search_frame, text="Search Title:")
-        search_label.pack(side="left")
+        title_label = tk.Label(search_frame, text="Search Title:")
+        title_label.pack(side="left")
 
-        self.search_entry = tk.Entry(search_frame)
-        self.search_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
-        self.search_entry.bind("<KeyRelease>", self.search_database)
+        self.title_entry = tk.Entry(search_frame)
+        self.title_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        self.title_entry.bind("<KeyRelease>", self.search_database)
+
+        # Create a frame for search year functionality
+
+
+        year_label = tk.Label(search_frame, text="Search year:")
+        year_label.pack(side="left")
+
+        self.year_entry = tk.Entry(search_frame)
+        self.year_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        self.year_entry.bind("<KeyRelease>", self.search_database)
+
+        # Create a frame for search director functionality
+
+        director_label = tk.Label(search_frame, text="Search director:")
+        director_label.pack(side="left")
+
+        self.director_entry = tk.Entry(search_frame)
+        self.director_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        self.director_entry.bind("<KeyRelease>", self.search_database)
+
+
+
+
 
     def search_database(self, event=None):
-        search_text = self.search_entry.get().lower()
+        title_text = self.title_entry.get().lower()
+        year_text = self.year_entry.get()  # Retrieve year input value
+        director_text = self.director_entry.get().lower()
+
         filtered_rows = []
 
         try:
@@ -234,14 +263,14 @@ class MovieSearchApp:
                 csv_reader = csv.reader(csv_file)
                 header = next(csv_reader)
                 for row in csv_reader:
-                    if search_text in row[0].lower():  # Search in the first column (title)
+                    if title_text in row[0].lower() and year_text in row[3] and director_text in row[4].lower():  # Search in title and year columns
+                        print(director_text)
                         filtered_rows.append(row)
 
         except FileNotFoundError:
             pass
 
         self.update_database_ui(rows=filtered_rows)  # Update the UI with filtered data
-
     def save_search_count(self):
         filename = 'analyze.csv'
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
