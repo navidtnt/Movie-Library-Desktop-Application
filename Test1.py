@@ -222,31 +222,60 @@ class MovieSearchApp:
         search_frame.place(x=50, y=300)  # Adjust placement here
 
         title_label = tk.Label(search_frame, text="Search Title:")
-        title_label.pack(side="left")
+        title_label.pack(side="top", anchor="w")
 
         self.title_entry = tk.Entry(search_frame)
-        self.title_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        self.title_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
         self.title_entry.bind("<KeyRelease>", self.search_database)
 
-        # Create a frame for search year functionality
-
-
-        year_label = tk.Label(search_frame, text="Search year:")
-        year_label.pack(side="left")
+        year_label = tk.Label(search_frame, text="Search Year:")
+        year_label.pack(side="top", anchor="w")
 
         self.year_entry = tk.Entry(search_frame)
-        self.year_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        self.year_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
         self.year_entry.bind("<KeyRelease>", self.search_database)
 
-        # Create a frame for search director functionality
-
-        director_label = tk.Label(search_frame, text="Search director:")
-        director_label.pack(side="left")
+        director_label = tk.Label(search_frame, text="Search Director:")
+        director_label.pack(side="top", anchor="w")
 
         self.director_entry = tk.Entry(search_frame)
-        self.director_entry.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        self.director_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
         self.director_entry.bind("<KeyRelease>", self.search_database)
 
+        genre_label = tk.Label(search_frame, text="Search Genre:")
+        genre_label.pack(side="top", anchor="w")
+
+        self.genre_entry = tk.Entry(search_frame)
+        self.genre_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
+        self.genre_entry.bind("<KeyRelease>", self.search_database)
+
+        imdb_rating_label = tk.Label(search_frame, text="Search IMDb Rating:")
+        imdb_rating_label.pack(side="top", anchor="w")
+
+        self.imdb_rating_entry = tk.Entry(search_frame)
+        self.imdb_rating_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
+        self.imdb_rating_entry.bind("<KeyRelease>", self.search_database)
+
+        rotten_tomatoes_label = tk.Label(search_frame, text="Search Rotten Tomatoes:")
+        rotten_tomatoes_label.pack(side="top", anchor="w")
+
+        self.rotten_tomatoes_entry = tk.Entry(search_frame)
+        self.rotten_tomatoes_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
+        self.rotten_tomatoes_entry.bind("<KeyRelease>", self.search_database)
+
+        actors_label = tk.Label(search_frame, text="Search Actors:")
+        actors_label.pack(side="top", anchor="w")
+
+        self.actors_entry = tk.Entry(search_frame)
+        self.actors_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
+        self.actors_entry.bind("<KeyRelease>", self.search_database)
+
+        writer_label = tk.Label(search_frame, text="Search Writer:")
+        writer_label.pack(side="top", anchor="w")
+
+        self.writer_entry = tk.Entry(search_frame)
+        self.writer_entry.pack(side="top", padx=(5, 0), fill="x", expand=True)
+        self.writer_entry.bind("<KeyRelease>", self.search_database)
 
 
 
@@ -255,16 +284,21 @@ class MovieSearchApp:
         title_text = self.title_entry.get().lower()
         year_text = self.year_entry.get()  # Retrieve year input value
         director_text = self.director_entry.get().lower()
+        genre_text = self.genre_entry.get().lower()  # Retrieve genre input value
+        imdb_rating_text = self.imdb_rating_entry.get()
+        rotten_tomatoes_text = self.rotten_tomatoes_entry.get()
+        actors_text = self.actors_entry.get().lower()
+        writer_text = self.writer_entry.get().lower()  # Retrieve writer input value
+
 
         filtered_rows = []
 
         try:
-            with open("movie_results.csv", "r") as csv_file:
+            with (open("movie_results.csv", "r") as csv_file):
                 csv_reader = csv.reader(csv_file)
                 header = next(csv_reader)
                 for row in csv_reader:
-                    if title_text in row[0].lower() and year_text in row[3] and director_text in row[4].lower():  # Search in title and year columns
-                        print(director_text)
+                    if title_text in row[0].lower() and year_text in row[3] and director_text in row[4].lower() and genre_text in row[1].lower() and imdb_rating_text in row[6] and rotten_tomatoes_text in row[7] and actors_text in row[8].lower() and writer_text in row[13].lower() :
                         filtered_rows.append(row)
 
         except FileNotFoundError:
