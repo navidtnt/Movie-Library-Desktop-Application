@@ -144,13 +144,15 @@ class MovieSearchApp:
         self.result_frame = tk.Frame(parent)
         self.result_frame.config(bg="#D9D9D9")
         self.result_frame.pack(padx=10, pady=10)
+        # Increase the size of the frame using .place()
+        self.result_frame.place(x=10, y=80, width=980, height=480)
         # Create a placeholder label for the poster image
         self.poster_label = tk.Label(self.result_frame, text="Poster", font=("Arial", 12, "bold"),
                                      borderwidth=2, relief="solid", padx=80, pady=150)
         self.poster_label.grid(row=0, column=0, rowspan=16, padx=10, pady=50)
         self.poster_label.config(bg="#00BFFF")
 
-        self.text_widget = tk.Text(self.result_frame, wrap="none")
+        self.text_widget = tk.Text(self.result_frame, wrap="none", highlightthickness=2, highlightbackground="gray")
         self.text_widget.grid(row=0, column=1, padx=10, pady=5)
 
 
@@ -292,16 +294,16 @@ class MovieSearchApp:
         # Create radio buttons for "Watched" and "I Want to Watch"
         watched_radio = tk.Radiobutton(self.result_frame, text="Watched", variable=self.watched_var, value=1)
         watched_radio.config(bg="#D9D9D9")
-        watched_radio.grid(row=17, column=0, padx=10, pady=5, sticky="w")
+        watched_radio.place(x=260, y=450, anchor="w")
 
         I_want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.watched_var,
-                                             value=0)
+                                               value=0)
         I_want_to_watch_radio.config(bg="#D9D9D9")
-        I_want_to_watch_radio.grid(row=17, column=1, padx=10, pady=5, sticky="w")
+        I_want_to_watch_radio.place(x=360, y=450, anchor="w")
 
         # Create "Save" button
         save_button = tk.Button(self.result_frame, text="Save", command=self.save_result, width=20, height=2)
-        save_button.grid(row=17, column=0, columnspan=2)
+        save_button.place(x=530, y=450, anchor="w")
 
     def save_analyze_data(self, count):
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
