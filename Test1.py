@@ -116,33 +116,31 @@ class MovieSearchApp:
 
     def create_search_ui(self, parent):
         input_frame = tk.Frame(parent)
-        input_frame.config(bg="#F5F5DC")
+        input_frame.config(bg="#B5B5B5")
         input_frame.pack(padx=10, pady=10)
         input_frame.place(x=10, y=10, width=980, height=185)
-        input_frame.config(borderwidth=1, relief="solid", highlightbackground="gray")
-
+        input_frame.config(borderwidth=1, relief="solid", highlightbackground="#D9D9D9")  # Use a consistent color
 
         movie_name_label = tk.Label(input_frame, text="Movie Name", font=("Arial", 12, "bold"))
-        movie_name_label.config(bg="#F5F5DC")
+        movie_name_label.config(bg="#B5B5B5")
         movie_name_label.place(x=10, y=10)
 
-        self.movie_name_entry = tk.Entry(input_frame,font=('Arial 14'))
+        self.movie_name_entry = tk.Entry(input_frame, font=('Arial 14'))
         self.movie_name_entry.place(x=200, y=11)
         self.movie_name_entry.bind("<Return>", self.search_movie)
 
         movie_year_label = tk.Label(input_frame, text="Year of Release", font=("Arial", 12, "bold"))
-        movie_year_label.config(bg="#F5F5DC")
+        movie_year_label.config(bg="#B5B5B5")
         movie_year_label.place(x=10, y=50)
-        self.movie_year_entry = tk.Entry(input_frame,font=('Arial 14'))
+        self.movie_year_entry = tk.Entry(input_frame, font=('Arial 14'))
         self.movie_year_entry.place(x=200, y=51)
 
         movie_type_label = tk.Label(input_frame, text="Type", font=("Arial", 12, "bold"))
-        movie_type_label.config(bg="#F5F5DC")
+        movie_type_label.config(bg="#B5B5B5")
         movie_type_label.place(x=10, y=90)
-        self.movie_type_combo = ttk.Combobox(input_frame,font=('Arial 14'), values=["movie", "series", "episode"])
+        self.movie_type_combo = ttk.Combobox(input_frame, width=34, values=["movie", "series", "episode"])
         self.movie_type_combo.place(x=200, y=91)
 
-        # Create a Canvas widget to draw the line
         canvas = tk.Canvas(input_frame, bg="#D9D9D9", width=1, height=110, highlightthickness=0)
         canvas.place(x=180, y=10)
         canvas.create_line(0, 0, 0, 380, fill="black")
@@ -159,31 +157,32 @@ class MovieSearchApp:
         self.result_frame = tk.Frame(parent)
         self.result_frame.config(bg="#D9D9D9")
         self.result_frame.pack(padx=10, pady=10)
-        # Increase the size of the frame using .place()
         self.result_frame.place(x=10, y=200, width=980, height=480)
-        # Add a gray border around the frame
-        self.result_frame.config(borderwidth=1, relief="solid", highlightbackground="gray")
-        # Create a placeholder label for the poster image
+        self.result_frame.config(borderwidth=1, relief="solid", highlightbackground="#D9D9D9")  # Use a consistent color
+
         self.poster_label = tk.Label(self.result_frame, text="Poster", font=("Arial", 12, "bold"),
                                      borderwidth=2, relief="solid", padx=80, pady=150)
         self.poster_label.grid(row=0, column=0, rowspan=16, padx=10, pady=50)
-        self.poster_label.config(bg="#00BFFF")
+        self.poster_label.config(bg="#EEE685")
 
-        self.text_widget = tk.Text(self.result_frame, wrap="none", highlightthickness=2, highlightbackground="gray")
+        self.text_widget = tk.Text(self.result_frame, wrap="none", highlightthickness=2,
+                                   highlightbackground="#D9D9D9")  # Use a consistent color
         self.text_widget.grid(row=0, column=1, padx=10, pady=5)
-
 
         self.initialize_checkboxes_and_button()
 
     def create_database_ui(self, parent):
         # Create a frame to hold the Treeview widget and the scrollbars
         database_frame = tk.Frame(parent)
+        database_frame.config(bg="#C1C1C1")
         database_frame.pack(padx=10, pady=10, fill="both", expand=True)
+        database_frame.place(x=10, y=10, width=980, height=680)  # Adjust the placement and size
 
-        self.database_tree = ttk.Treeview(
-            database_frame, columns=self.dblabels, show="headings"
-        )
-        database_frame.config(bg="#D9D9D9")
+        # Add a black line border around the frame
+        database_frame.config(borderwidth=1, relief="solid", highlightbackground="black")
+
+        self.database_tree = ttk.Treeview(database_frame, columns=self.dblabels, show="headings")
+
         self.database_tree.pack(fill="both", expand=False)
 
         for label in self.dblabels:
@@ -318,9 +317,11 @@ class MovieSearchApp:
         I_want_to_watch_radio.config(bg="#D9D9D9")
         I_want_to_watch_radio.place(x=360, y=450, anchor="w")
 
-        # Create "Save" button
-        save_button = tk.Button(self.result_frame, text="Save", command=self.save_result, width=20, height=2)
-        save_button.place(x=530, y=450, anchor="w")
+        # Apply the "breeze" theme to the button
+        style = ThemedStyle(self.result_frame)
+        style.set_theme("breeze")  # Apply the "breeze" theme
+        themed_save_button = ttk.Button(self.result_frame, text="Save", command=self.save_result)
+        themed_save_button.place(x=530, y=450, anchor="w")
 
     def save_analyze_data(self, count):
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
