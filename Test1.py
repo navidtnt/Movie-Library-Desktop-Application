@@ -7,6 +7,8 @@ import tkinter.messagebox as messagebox
 from tabulate import tabulate  # Import tabulate
 import datetime
 from tkinter import Scrollbar
+from ttkthemes import ThemedStyle
+
 
 
 class MovieSearchApp:
@@ -145,10 +147,11 @@ class MovieSearchApp:
         canvas.place(x=180, y=10)
         canvas.create_line(0, 0, 0, 380, fill="black")
 
-
-        search_button = tk.Button(input_frame, text="Search", command=self.search_movie, width=20, height=2)
+        # Apply the "scidblue" theme to the button
+        style = ThemedStyle(input_frame)
+        style.set_theme("scidblue")  # Apply the "scidblue" theme
+        search_button = ttk.Button(input_frame, text="Search", command=self.search_movie, width= 40)
         search_button.place(x=440, y=11)
-
 
         separator = ttk.Separator(parent, orient="horizontal")
         separator.pack(fill="x", padx=10, pady=5)
