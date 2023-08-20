@@ -300,11 +300,6 @@ class MovieSearchApp:
                                                command=self.search_want_to_watch_movies, width=20)
         show_want_to_watch_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
 
-
-
-
-
-
     def search_database(self, event=None):
         title_text = self.title_entry.get().lower()
         year_text = self.year_entry.get()  # Retrieve year input value
@@ -315,17 +310,18 @@ class MovieSearchApp:
         actors_text = self.actors_entry.get().lower()
         writer_text = self.writer_entry.get().lower()
 
-
         filtered_rows = []
 
         try:
-            with (open("movie_results.csv", "r") as csv_file):
+            with open("movie_results.csv", "r") as csv_file:
                 csv_reader = csv.reader(csv_file)
-                header = next(csv_reader)
-                for row in csv_reader:
-                    if title_text in row[0].lower() and year_text in row[3] and director_text in row[4].lower() and genre_text in row[1].lower() and imdb_rating_text in row[6] and rotten_tomatoes_text in row[7] and actors_text in row[8].lower() and writer_text in row[13].lower() :
-
-                        filtered_rows.append(row)
+                header = next(csv_reader)  # Skip the header row
+                for idx, row in enumerate(csv_reader, start=1):
+                    if title_text in row[0].lower() and year_text in row[3] and \
+                            director_text in row[4].lower() and genre_text in row[1].lower() and \
+                            imdb_rating_text in row[6] and rotten_tomatoes_text in row[7] and \
+                            actors_text in row[8].lower() and writer_text in row[13].lower():
+                        filtered_rows.append([idx] + row)  # Insert index at the beginning
 
         except FileNotFoundError:
             pass
@@ -338,10 +334,10 @@ class MovieSearchApp:
         try:
             with open("movie_results.csv", "r") as csv_file:
                 csv_reader = csv.reader(csv_file)
-                header = next(csv_reader)
-                for row in csv_reader:
+                header = next(csv_reader)  # Skip the header row
+                for idx, row in enumerate(csv_reader, start=1):
                     if row[-2] == 'yes':  # Check Watched column
-                        filtered_rows.append(row)
+                        filtered_rows.append([idx] + row)  # Insert index at the beginning
         except FileNotFoundError:
             pass
 
@@ -353,14 +349,39 @@ class MovieSearchApp:
         try:
             with open("movie_results.csv", "r") as csv_file:
                 csv_reader = csv.reader(csv_file)
-                header = next(csv_reader)
-                for row in csv_reader:
+                header = next(csv_reader)  # Skip the header row
+                for idx, row in enumerate(csv_reader, start=1):
                     if row[-1] == 'yes':  # Check I Want to Watch column
-                        filtered_rows.append(row)
+                        filtered_rows.append([idx] + row)  # Insert index at the beginning
         except FileNotFoundError:
             pass
 
         self.update_database_ui(rows=filtered_rows)
+
+    def delete_selected_rows(self):
+        selected_items = self.database_tree.selection()
+        if selected_items:
+            rows_to_delete = []
+            for item in selected_items:
+                row = self.database_tree.item(item)["values"]
+                rows_to_delete.append(row)
+
+            if rows_to_delete:
+                with open("movie_results.csv", "r") as csv_file:
+                    csv_reader = csv.reader(csv_file)
+                    rows = list(csv_reader)
+
+                updated_rows = [row for row in rows if row[1:] not in rows_to_delete]
+
+                with open("movie_results.csv", "w", newline="") as csv_file:
+                    csv_writer = csv.writer(csv_file)
+                    csv_writer.writerows(updated_rows)
+
+                self.update_database_ui()  # Update the UI after deletion
+                messagebox.showinfo("Success", "Selected rows have been deleted.")
+        else:
+            messagebox.showwarning("Warning", "No rows selected. Please select rows to delete.")
+
     def save_search_count(self):
         filename = 'analyze.csv'
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -528,6 +549,8 @@ class MovieSearchApp:
         else:
             # Show warning message box
             messagebox.showwarning("Warning", f"Title '{title}' already exists")
+
+
 
         self.update_database_ui()
 
