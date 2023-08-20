@@ -300,6 +300,39 @@ class MovieSearchApp:
                                                command=self.search_want_to_watch_movies, width=20)
         show_want_to_watch_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
 
+        # Add the delete button
+        delete_button = ttk.Button(database_frame, text="Delete", command=self.delete_selected_movie, width=20)
+        delete_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
+        delete_button.place(x=245, y=350)
+
+    def delete_movie_by_title(self, title_to_delete):
+        print(f"Deleting movie: {title_to_delete}")
+
+        try:
+            with open("movie_results.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                rows = list(csv_reader)
+
+            updated_rows = [row for row in rows if row[0].lower() != title_to_delete.lower()]
+
+            with open("movie_results.csv", "w", newline="") as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerows(updated_rows)
+
+            self.update_database_ui()  # Update the UI after deletion
+            messagebox.showinfo("Success", f"Movie '{title_to_delete}' has been deleted.")
+        except Exception as e:
+            print("Error deleting movie:", e)
+
+    def delete_selected_movie(self):
+        selected_item = self.database_tree.selection()
+        if selected_item:
+            row = self.database_tree.item(selected_item[0])["values"]
+            movie_title = row[1]  # Assuming title is in the second column
+            self.delete_movie_by_title(movie_title)
+        else:
+            messagebox.showwarning("Warning", "No movie selected. Please select a movie to delete.")
+
     def search_database(self, event=None):
         title_text = self.title_entry.get().lower()
         year_text = self.year_entry.get()  # Retrieve year input value
