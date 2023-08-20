@@ -14,7 +14,7 @@ from ttkthemes import ThemedStyle
 class MovieSearchApp:
     def __init__(self, root):
         self.root = root
-        self.api_key = "45edf973"
+        self.api_key = "your_api_key"
         self.search_count = 0
         self.last_search_time = None
         self.load_search_count()
