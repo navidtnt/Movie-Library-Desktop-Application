@@ -4,7 +4,7 @@ import requests
 from PIL import Image, ImageTk
 import csv
 import tkinter.messagebox as messagebox
-from tabulate import tabulate  # Import tabulate
+from tabulate import tabulate
 import datetime
 from tkinter import Scrollbar
 from ttkthemes import ThemedStyle
@@ -292,8 +292,8 @@ class MovieSearchApp:
         search_frame_buttons.place(x=250, y=310)  # Adjust placement here
 
         # Create buttons to show watched and want to watch movies within the new frame
-        show_watched_button = ttk.Button(search_frame_buttons, text="Show Watched", command=self.search_watched_movies,
-                                         width=20)
+        show_watched_button = ttk.Button(search_frame_buttons, text="Show Watched",
+                                         command=self.search_watched_movies, width=20)
         show_watched_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
 
         show_want_to_watch_button = ttk.Button(search_frame_buttons, text="Show I Want to Watch",
@@ -304,6 +304,32 @@ class MovieSearchApp:
         delete_button = ttk.Button(database_frame, text="Delete", command=self.delete_selected_movie, width=20)
         delete_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
         delete_button.place(x=245, y=350)
+
+        # Create the "Show All" button
+        show_all_button = ttk.Button(database_frame, text="Show All", command=self.show_all_data, width=20)
+        show_all_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
+        show_all_button.place(x=412, y=350)
+
+    def show_all_data(self):
+        all_rows = self.get_all_database_rows()
+        self.update_database_ui(rows=all_rows)
+
+    def get_all_database_rows(self):
+        rows = []
+
+        try:
+            with open("movie_results.csv", "r") as csv_file:
+                csv_reader = csv.reader(csv_file)
+                header = next(csv_reader)
+                i = 1
+                for row in csv_reader:
+                    row.insert(0, str(i))
+                    i += 1
+                    rows.append(row)
+        except FileNotFoundError:
+            pass
+
+        return rows
 
     def delete_movie_by_title(self, title_to_delete):
         print(f"Deleting movie: {title_to_delete}")
@@ -369,12 +395,18 @@ class MovieSearchApp:
                 csv_reader = csv.reader(csv_file)
                 header = next(csv_reader)  # Skip the header row
                 for idx, row in enumerate(csv_reader, start=1):
-                    if row[-2] == 'yes':  # Check Watched column
+                    if row[17] == 'yes':  # Check Watched column
                         filtered_rows.append([idx] + row)  # Insert index at the beginning
         except FileNotFoundError:
             pass
 
+        # Save the filtered rows to a new CSV file named "watched_movies.csv"
+        self.save_filtered_to_csv(filtered_rows, "watched_movies.csv")
+
+
         self.update_database_ui(rows=filtered_rows)
+
+
 
     def search_want_to_watch_movies(self):
         filtered_rows = []
@@ -384,12 +416,24 @@ class MovieSearchApp:
                 csv_reader = csv.reader(csv_file)
                 header = next(csv_reader)  # Skip the header row
                 for idx, row in enumerate(csv_reader, start=1):
-                    if row[-1] == 'yes':  # Check I Want to Watch column
+                    if row[18] == 'yes':  # Check I Want to Watch column
                         filtered_rows.append([idx] + row)  # Insert index at the beginning
         except FileNotFoundError:
             pass
 
+        # Save the filtered rows to a new CSV file named "want_to_watch_movies.csv"
+        self.save_filtered_to_csv(filtered_rows, "want_to_watch_movies.csv")
+
         self.update_database_ui(rows=filtered_rows)
+
+    def save_filtered_to_csv(self, rows, filename):
+        try:
+            with open(filename, 'w', newline='') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                csv_writer.writerow(self.dblabels[1:])  # Write header without the ID column
+                csv_writer.writerows([row[1:] for row in rows])  # Write rows without the ID column
+        except Exception as e:
+            print("Error saving CSV:", e)
 
     def delete_selected_rows(self):
         selected_items = self.database_tree.selection()
@@ -545,20 +589,21 @@ class MovieSearchApp:
         want_to_watch = 'yes' if self.want_to_watch_var.get() == 1 else 'no'
 
         title = self.detail_values[0]
+        year = self.detail_values[3]
 
-        # Check if the title already exists in the CSV file
-        is_title_exists = False
+        # Check if the title and year combination already exists in the CSV file
+        is_entry_exists = False
         try:
             with open("movie_results.csv", 'r', newline='') as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for row in csv_reader:
-                    if row and row[0] == title:
-                        is_title_exists = True
+                    if row and row[0] == title and row[3] == year:
+                        is_entry_exists = True
                         break
         except FileNotFoundError:
             pass
 
-        if not is_title_exists:
+        if not is_entry_exists:
             # Write header row if the file is empty
             is_file_empty = False
             try:
@@ -581,7 +626,7 @@ class MovieSearchApp:
             messagebox.showinfo("Success", "Data has been saved")
         else:
             # Show warning message box
-            messagebox.showwarning("Warning", f"Title '{title}' already exists")
+            messagebox.showwarning("Warning", f"Entry '{title}' from {year} already exists")
 
 
 
