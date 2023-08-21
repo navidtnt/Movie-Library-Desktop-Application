@@ -29,7 +29,7 @@ class MovieSearchApp:
             "ID", "Title", "Genre", "Runtime", "Year", "Director",
             "IMDB Rating", "IMDB Votes", "Rotten Tomatoes",
             "Actors", "IMDB ID", "Type", "Rated", "Released",
-            "Writer", "Country", "Awards", "Plot"
+            "Writer", "Country", "Awards", "Plot", "Watched", "I Want to Watch"
         ]
         self.initialize_ui()
 
@@ -310,6 +310,127 @@ class MovieSearchApp:
         show_all_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
         show_all_button.place(x=412, y=350)
 
+        # Create the "Edit" button
+        edit_button = ttk.Button(database_frame, text="Edit", command=self.edit_selected_movie, width=20)
+        edit_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
+        edit_button.place(x=245, y=390)  # Adjust the placement as needed
+
+        change_to_watched_button = ttk.Button(database_frame, text="Change to watched", command=self.change_watched_status, width=20)
+        change_to_watched_button.pack(side="left", padx=(5, 0), pady=(10, 0), fill="x")
+        change_to_watched_button.place(x=412, y=390)  # Adjust the placement as needed
+
+
+    def edit_selected_movie(self):
+        selected_item = self.database_tree.selection()
+        if selected_item:
+            row = self.database_tree.item(selected_item[0])["values"]
+            self.open_edit_window(row)
+        else:
+            messagebox.showwarning("Warning", "No movie selected. Please select a movie to edit.")
+
+    def change_watched_status(self):
+        selected_item = self.database_tree.selection()
+        if selected_item:
+            row = self.database_tree.item(selected_item[0])["values"]
+            self.change_watched_db(row)
+        else:
+            messagebox.showwarning("Warning", "No movie selected. Please select a movie to edit.")
+
+    def open_edit_window(self, movie_data):
+        self.edit_window = tk.Toplevel(self.root)
+        self.edit_window.title("Edit Movie Data")
+
+        # Create labels, entry fields, and buttons for editing
+        labels = ["Title", "Genre", "Runtime", "Year", "Director", "IMDB Rating", "IMDB Votes",
+                  "Rotten Tomatoes", "Actors", "IMDB ID", "Type", "Rated", "Released", "Writer",
+                  "Country", "Awards", "Plot", "Watched", "I Want to Watch"]
+
+        entry_fields = []
+        for label_text, current_value in zip(labels, movie_data[1:]):  # Exclude the first element (ID)
+            label = tk.Label(self.edit_window, text=label_text)
+            label.pack()
+
+            entry = tk.Entry(self.edit_window)
+            entry.insert(tk.END, current_value)
+            entry.pack()
+            entry_fields.append(entry)
+
+        save_button = ttk.Button(self.edit_window, text="Save Changes",
+                                 command=lambda: self.save_edited_data(movie_data, entry_fields))
+        save_button.pack()
+
+    def change_watched_db(self, movie_data):
+        imdb_id = movie_data[10]
+        print(movie_data)
+        print(movie_data[10])
+        # Load the CSV file into a list of dictionaries
+        csv_file = 'movie_results.csv'  # Replace with your CSV file path
+        csv_rows = []
+        with open(csv_file, 'r') as file:
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                csv_rows.append(row)
+
+        # Find the row with the specified IMDB ID
+        found_row_index = None
+        for i, row in enumerate(csv_rows):
+            if row['IMDB ID'] == imdb_id:
+                found_row_index = i
+                break
+
+        # If a matching row is found, update the watch status
+        if found_row_index is not None:
+            if csv_rows[found_row_index]['Watched'] == 'no':
+                csv_rows[found_row_index]['Watched'] = 'yes'
+                csv_rows[found_row_index]['I Want to Watch'] = 'no'
+
+                # Write the updated rows back to the CSV file
+                with open(csv_file, 'w', newline='') as file:
+                    fieldnames = csv_rows[0].keys()
+                    csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
+                    csv_writer.writeheader()
+                    csv_writer.writerows(csv_rows)
+                self.update_database_ui()
+
+                messagebox.showinfo("Success", "Movie data updated successfully.")
+            else:
+                messagebox.showerror("Error", "You have already watched this movie.")
+        else:
+            messagebox.showerror("Error", "Selected movie not found in the csv file.")
+    def save_edited_data(self, movie_data, entry_fields):
+        new_data = [entry.get() for entry in entry_fields]
+
+        csv_rows = []
+        with open("movie_results.csv", 'r') as file:
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                csv_rows.append(row)
+
+        # Find the row with the selected movie ID in column 9
+        found_row = None
+        for row in csv_rows:
+            if row['IMDB ID'] == new_data[9]:
+                found_row = row
+                break
+
+        # Check if the item ID exists in the tree view
+        if found_row:
+            found_row.update(zip(found_row.keys(), new_data))
+
+            # Write the updated rows back to the CSV file
+            with open("movie_results.csv", 'w', newline='') as file:
+                csv_writer = csv.DictWriter(file, fieldnames=csv_rows[0].keys())
+                csv_writer.writeheader()
+                csv_writer.writerows(csv_rows)
+
+            self.update_database_ui()
+            messagebox.showinfo("Success", "Movie data updated successfully.")
+        else:
+            messagebox.showerror("Error", "Selected movie not found in the treeview.")
+
+        # Close the edit window
+        self.edit_window.destroy()
+
     def show_all_data(self):
         all_rows = self.get_all_database_rows()
         self.update_database_ui(rows=all_rows)
@@ -554,16 +675,15 @@ class MovieSearchApp:
         return "N/A"
 
     def initialize_checkboxes_and_button(self):
-        self.watched_var = tk.IntVar(value=0)
-        self.want_to_watch_var = tk.IntVar(value=0)
+        self.watched_var = tk.IntVar()
 
         # Create radio buttons for "Watched" and "I Want to Watch"
         watched_radio = tk.Radiobutton(self.result_frame, text="Watched", variable=self.watched_var, value=1)
         watched_radio.config(bg="#D9D9D9")
         watched_radio.place(x=260, y=450, anchor="w")
 
-        want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.want_to_watch_var,
-                                             value=1)
+        want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.watched_var,
+                                             value=2)
         want_to_watch_radio.config(bg="#D9D9D9")
         want_to_watch_radio.place(x=360, y=450, anchor="w")
 
@@ -585,52 +705,55 @@ class MovieSearchApp:
             print("Error saving analyze data:", e)
 
     def save_result(self):
-        watched = 'yes' if self.watched_var.get() == 1 else 'no'
-        want_to_watch = 'yes' if self.want_to_watch_var.get() == 1 else 'no'
+        if (self.watched_var.get() == 0):
+            messagebox.showwarning("Warning", "You Have To Select Watched or I Want To Watch")
+        else:
+            watched = 'yes' if self.watched_var.get() == 1 else 'no'
+            want_to_watch = 'yes' if self.watched_var.get() == 2 else 'no'
 
-        title = self.detail_values[0]
-        year = self.detail_values[3]
+            title = self.detail_values[0]
+            year = self.detail_values[3]
 
-        # Check if the title and year combination already exists in the CSV file
-        is_entry_exists = False
-        try:
-            with open("movie_results.csv", 'r', newline='') as csv_file:
-                csv_reader = csv.reader(csv_file)
-                for row in csv_reader:
-                    if row and row[0] == title and row[3] == year:
-                        is_entry_exists = True
-                        break
-        except FileNotFoundError:
-            pass
-
-        if not is_entry_exists:
-            # Write header row if the file is empty
-            is_file_empty = False
+            # Check if the title and year combination already exists in the CSV file
+            is_entry_exists = False
             try:
-                with open("movie_results.csv", 'r') as csv_file:
-                    is_file_empty = csv_file.read().strip() == ''
+                with open("movie_results.csv", 'r', newline='') as csv_file:
+                    csv_reader = csv.reader(csv_file)
+                    for row in csv_reader:
+                        if row and row[0] == title and row[3] == year:
+                            is_entry_exists = True
+                            break
             except FileNotFoundError:
-                is_file_empty = True
+                pass
 
-            if is_file_empty:
+            if not is_entry_exists:
+                # Write header row if the file is empty
+                is_file_empty = False
+                try:
+                    with open("movie_results.csv", 'r') as csv_file:
+                        is_file_empty = csv_file.read().strip() == ''
+                except FileNotFoundError:
+                    is_file_empty = True
+
+                if is_file_empty:
+                    with open("movie_results.csv", 'a', newline='') as csv_file:
+                        csv_writer = csv.writer(csv_file)
+                        csv_writer.writerow(self.dblabels[1:] + ["Watched", "I Want to Watch"])  # Add new columns
+
+                # Append the data to the CSV file
                 with open("movie_results.csv", 'a', newline='') as csv_file:
                     csv_writer = csv.writer(csv_file)
-                    csv_writer.writerow(self.dblabels[1:] + ["Watched", "I Want to Watch"])  # Add new columns
+                    csv_writer.writerow(self.detail_values[0:] + [watched, want_to_watch])  # Append data
 
-            # Append the data to the CSV file
-            with open("movie_results.csv", 'a', newline='') as csv_file:
-                csv_writer = csv.writer(csv_file)
-                csv_writer.writerow(self.detail_values[0:] + [watched, want_to_watch])  # Append data
-
-            # Show success message box
-            messagebox.showinfo("Success", "Data has been saved")
-        else:
-            # Show warning message box
-            messagebox.showwarning("Warning", f"Entry '{title}' from {year} already exists")
+                # Show success message box
+                messagebox.showinfo("Success", "Data has been saved")
+            else:
+                # Show warning message box
+                messagebox.showwarning("Warning", f"Entry '{title}' from {year} already exists")
 
 
 
-        self.update_database_ui()
+            self.update_database_ui()
 
 
 if __name__ == "__main__":
