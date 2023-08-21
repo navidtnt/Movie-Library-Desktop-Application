@@ -131,23 +131,48 @@ class MovieSearchApp:
         input_frame.place(x=10, y=10, width=980, height=185)
         input_frame.config(borderwidth=1, relief="solid", highlightbackground="#D9D9D9")  # Use a consistent color
 
-        movie_name_label = tk.Label(input_frame, text="Movie Name", font=("Arial", 12, "bold"))
+        # Load and display an image
+        image_path = "header.jpg"  # Use an image with alpha (transparency) channel
+        image = Image.open(image_path)
+
+        # Reduce the opacity of the image
+        opacity = 128  # Set the desired opacity value (0-255)
+        image = image.convert("RGBA")
+        data = image.getdata()
+        new_data = []
+        for item in data:
+            new_data.append((item[0], item[1], item[2], opacity))
+        image.putdata(new_data)
+
+        photo = ImageTk.PhotoImage(image)
+        image_label = tk.Label(input_frame, image=photo)
+        image_label.image = photo
+        image_label.pack()
+
+        text_frame = tk.Frame(parent)
+        text_frame.config(bg="#B5B5B5")
+        text_frame.pack(padx=10, pady=10)
+        text_frame.place(x=14, y=22, width=185, height=113)
+        text_frame.config(borderwidth=1, relief="solid", highlightbackground="#D9D9D9")
+
+        movie_name_label = tk.Label(text_frame, text="Movie Name", font=("Arial", 12, "bold"))
         movie_name_label.config(bg="#B5B5B5")
-        movie_name_label.place(x=10, y=10)
+        movie_name_label.place(x=10, y=0)
+
 
         self.movie_name_entry = tk.Entry(input_frame, font=('Arial 14'))
         self.movie_name_entry.place(x=200, y=11)
         self.movie_name_entry.bind("<Return>", self.search_movie)
 
-        movie_year_label = tk.Label(input_frame, text="Year of Release", font=("Arial", 12, "bold"))
+        movie_year_label = tk.Label(text_frame, text="Year of Release", font=("Arial", 12, "bold"))
         movie_year_label.config(bg="#B5B5B5")
-        movie_year_label.place(x=10, y=50)
+        movie_year_label.place(x=10, y=40)
         self.movie_year_entry = tk.Entry(input_frame, font=('Arial 14'))
         self.movie_year_entry.place(x=200, y=51)
 
-        movie_type_label = tk.Label(input_frame, text="Type", font=("Arial", 12, "bold"))
+        movie_type_label = tk.Label(text_frame, text="Type", font=("Arial", 12, "bold"))
         movie_type_label.config(bg="#B5B5B5")
-        movie_type_label.place(x=10, y=90)
+        movie_type_label.place(x=10, y=80)
         self.movie_type_combo = ttk.Combobox(input_frame, width=34, values=["movie", "series", "episode"])
         self.movie_type_combo.place(x=200, y=91)
 
@@ -164,20 +189,32 @@ class MovieSearchApp:
         separator = ttk.Separator(parent, orient="horizontal")
         separator.pack(fill="x", padx=10, pady=5)
 
+
         self.result_frame = tk.Frame(parent)
         self.result_frame.config(bg="#D9D9D9")
         self.result_frame.pack(padx=10, pady=10)
-        self.result_frame.place(x=10, y=200, width=980, height=480)
-        self.result_frame.config(borderwidth=1, relief="solid", highlightbackground="#D9D9D9")  # Use a consistent color
+        self.result_frame.place(x=10, y=200, width=980, height=530)
+        self.result_frame.config(borderwidth=1, relief="solid", highlightbackground="#D9D9D9")
+
+        # Load and display an image as the background
+        image_path = "cinema5.jpg"  # Replace with the actual image path
+        background_image = Image.open(image_path)
+        background_image = background_image.resize((980, 530))
+        self.background_photo = ImageTk.PhotoImage(background_image)
+
+        self.background_label = tk.Label(self.result_frame, image=self.background_photo)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+        # Place other widgets on top of the background
+        self.text_widget = tk.Text(self.result_frame, wrap="none", highlightthickness=2,
+                                   highlightbackground="#D9D9D9")
+        self.text_widget.place(x=290, y=10)
 
         self.poster_label = tk.Label(self.result_frame, text="Poster", font=("Arial", 12, "bold"),
                                      borderwidth=2, relief="solid", padx=80, pady=150)
-        self.poster_label.grid(row=0, column=0, rowspan=16, padx=10, pady=50)
+        self.poster_label.place(x=40, y=40)
         self.poster_label.config(bg="#EEE685")
 
-        self.text_widget = tk.Text(self.result_frame, wrap="none", highlightthickness=2,
-                                   highlightbackground="#D9D9D9")  # Use a consistent color
-        self.text_widget.grid(row=0, column=1, padx=10, pady=5)
 
         self.initialize_checkboxes_and_button()
 
@@ -677,21 +714,24 @@ class MovieSearchApp:
     def initialize_checkboxes_and_button(self):
         self.watched_var = tk.IntVar()
 
-        # Create radio buttons for "Watched" and "I Want to Watch"
-        watched_radio = tk.Radiobutton(self.result_frame, text="Watched", variable=self.watched_var, value=1)
+        # Create a new frame within result_frame for radio buttons and save button
+        buttons_frame = tk.Frame(self.result_frame, bg="#D9D9D9")
+        buttons_frame.place(x=560, y=420)
+
+        self.watched_var = tk.IntVar()
+
+        watched_radio = tk.Radiobutton(buttons_frame, text="Watched", variable=self.watched_var, value=1)
         watched_radio.config(bg="#D9D9D9")
-        watched_radio.place(x=260, y=450, anchor="w")
+        watched_radio.pack(side="left")
 
-        want_to_watch_radio = tk.Radiobutton(self.result_frame, text="I Want to Watch", variable=self.watched_var,
-                                             value=2)
+        want_to_watch_radio = tk.Radiobutton(buttons_frame, text="I Want to Watch", variable=self.watched_var, value=2)
         want_to_watch_radio.config(bg="#D9D9D9")
-        want_to_watch_radio.place(x=360, y=450, anchor="w")
+        want_to_watch_radio.pack(side="left")
 
-        # Apply the "breeze" theme to the button
-        style = ThemedStyle(self.result_frame)
-        style.set_theme("breeze")  # Apply the "breeze" theme
-        themed_save_button = ttk.Button(self.result_frame, text="Save", command=self.save_result)
-        themed_save_button.place(x=530, y=450, anchor="w")
+        style = ThemedStyle(buttons_frame)
+        style.set_theme("breeze")
+        themed_save_button = ttk.Button(buttons_frame, text="Save", command=self.save_result)
+        themed_save_button.pack(side="left")
 
     def save_analyze_data(self, count):
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
