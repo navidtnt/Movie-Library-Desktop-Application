@@ -2,7 +2,40 @@
 
 A complete desktop application to manage your movie collection, allowing you to track movies you have watched and those you want to watch. This project has been converted into an installable software with an MSI setup.
 
-## Features
+## Search Tab Overview:
+- Search functionality based on movie/series/episode name, type, and production year.
+- Retrieval of rich metadata from an external API for accurate and up-to-date details.
+- Ability to categorize movies as "watched" or "want to watch" and save these choices to the local database.
+- User-friendly interface with multiple tabs to manage and explore your movie collection efficiently.
+
+![FirtTab](Tab001.png)
+
+---
+
+## Database Tab Overview
+The second tab provides comprehensive management of the movie database, including detailed information about each movie and whether it has been watched or not.
+![SecondTab](Tab002.png)
+
+**Features include:**
+- Viewing and editing complete movie details.
+- Searching the database using multiple filters such as director, actors, release year, genre, movie rating, and writer.
+- Full editing capabilities to update the movie database records.
+- This tab is designed to give users full control over their movie collection data, making it easy to organize and find movies based on various attributes.
+
+---
+## Third Tab: Database Change Log and Future Enhancements
+The third tab currently displays the log of changes made to the movie database, helping users track all modifications during usage. This feature is still under active development.
+![SecondTab](Tab003.png)
+**Future planned enhancements include:**
+- Adding detailed analysis of the database content.
+- Incorporating favorite movies tracking.
+- Showing watched genres statistics.
+- Integrating various interactive charts and visualizations to provide deeper insights into your movie collection.
+
+Stay tuned for updates as these features are being implemented!
+---
+
+## Overall Features
 
 - Add, edit, and delete movies in your library.
 - Categorize movies as watched or want to watch.
